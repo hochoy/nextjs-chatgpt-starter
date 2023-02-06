@@ -7,12 +7,22 @@ import {
 } from "../context/messagesContext.js";
 import { useState } from "react";
 
+export default function Page() {
+  return (
+    <CenteredBackground>
+      <MessagesProvider>
+        <ChatRoom />
+      </MessagesProvider>
+    </CenteredBackground>
+  );
+}
+
 function ChatRoom() {
   return (
     <div className="flex flex-col flex-grow w-full max-w-xl bg-white shadow-xl rounded-lg overflow-hidden">
       <Title text="Demo of Chat GPT (Tailwind CSS)" />
       <MessageHistory />
-      <TypeBox />
+      <MessageInput />
     </div>
   );
 }
@@ -75,30 +85,8 @@ function MessageHistory() {
   );
 }
 
-async function sendGPTrequest(message, conversationId) {
-  const bodyJSON = JSON.stringify({
-    message,
-    conversationId,
-    // parentMessageId: "placeholder-parent-message-id",
-  });
-  console.log(`You sent: \n${bodyJSON}`);
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: bodyJSON,
-  };
-  // this sends the requests to our local Next.js server at /pages/api/chatgpt
-  const endpoint = "/api/chatgpt";
-  const response = await fetch(endpoint, options);
-  const result = await response.json();
-  const data = result.data;
-  console.log(`You received: \n${data}`);
-}
-
 // https://nextjs.org/docs/guides/building-forms
-function TypeBox() {
+function MessageInput() {
   const messageDispatch = useMessagesDispatch();
   const [typedMessage, setTypedMessage] = useState("");
 
@@ -123,6 +111,15 @@ function TypeBox() {
       messageText,
       "placeholder-conversation-id"
     );
+
+    if (gptReply.response) {
+      messageDispatch({
+        type: "add",
+        messageId: gptReply.messageId,
+        messageText: gptReply.response,
+        messageType: "inbound",
+      });
+    }
   };
 
   return (
@@ -161,12 +158,32 @@ function Title({ text }) {
   );
 }
 
-export default function Page() {
-  return (
-    <MessagesProvider>
-      <CenteredBackground>
-        <ChatRoom />
-      </CenteredBackground>
-    </MessagesProvider>
-  );
+async function sendGPTrequest(message, conversationId) {
+  const bodyJSON = JSON.stringify({
+    message,
+    conversationId,
+    // parentMessageId: "placeholder-parent-message-id",
+  });
+
+  console.log(`You sent: \n${bodyJSON}`);
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bodyJSON,
+  };
+
+  // this sends the requests to our local Next.js server at $BASE_URL/api/chatgpt
+  // TODO: check for failure (status code)
+  const endpoint = "/api/chatgpt";
+  const response = await fetch(endpoint, options);
+  const result = await response.json();
+
+  return {
+    response: result.response,
+    conversationId: result.conversationId,
+    messageId: result.messageId,
+  };
 }
