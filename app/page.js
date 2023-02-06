@@ -1,4 +1,5 @@
 "use client";
+import { v4 as uuidv4 } from "uuid";
 import {
   MessagesProvider,
   useMessages,
@@ -55,16 +56,16 @@ function MessageHistory() {
       {messageHistory.map((message) => {
         return message.messageType == "inbound" ? (
           <InboundMessage
-            id={message.id}
-            key={message.id}
-            text={message.text}
+            id={message.messageId}
+            key={message.messageId}
+            text={message.messageText}
             mins_ago={mins_ago}
           />
         ) : (
           <OutboundMessage
-            id={message.id}
-            key={message.id}
-            text={message.text}
+            id={message.messageId}
+            key={message.messageId}
+            text={message.messageText}
             mins_ago={mins_ago}
           />
         );
@@ -97,11 +98,24 @@ async function sendGPTrequest(message, conversationId) {
 
 // https://nextjs.org/docs/guides/building-forms
 function TypeBox() {
+  const messageDispatch = useMessagesDispatch();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const message = event.target.message.value;
+    const messageText = event.target.message.value;
+    const messageId = uuidv4();
+
+    // update message context to update the ChatRoom
+    messageDispatch({
+      type: "add",
+      messageId: messageId,
+      messageText: messageText,
+      messageType: "outbound",
+    });
+
+    // send a request to ChatGPT API
     const gptReply = await sendGPTrequest(
-      message,
+      messageText,
       "placeholder-conversation-id"
     );
   };

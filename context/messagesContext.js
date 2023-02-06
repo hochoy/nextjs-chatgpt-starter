@@ -1,11 +1,16 @@
 // https://beta.reactjs.org/learn/scaling-up-with-reducer-and-context
+import { v4 as uuidv4 } from "uuid";
 import { createContext, useContext, useReducer } from "react";
 
 const MessagesContext = createContext(null);
 const MessagesDispatchContext = createContext(null);
 
 const initialMessages = [
-  { id: 0, text: "Hello from ChatGPT simulator", messageType: "inbound" },
+  {
+    messageId: "1" + uuidv4(),
+    messageText: "Hello from ChatGPT simulator",
+    messageType: "inbound",
+  },
 ];
 
 export function MessagesProvider({ children }) {
@@ -30,18 +35,18 @@ export function useMessagesDispatch() {
 
 function messagesReducer(messages, action) {
   switch (action.type) {
-    case "added": {
+    case "add": {
       return [
         ...messages,
         {
-          id: action.id,
-          text: action.text,
+          messageId: action.messageId,
+          messageText: action.messageText,
           messageType: action.messageType,
         },
       ];
     }
-    case "deleted": {
-      return messages.filter((m) => m.id !== action.id);
+    case "delete": {
+      return messages.filter((m) => m.messageId !== action.messageId);
     }
     default: {
       throw Error("Unknown dispatch action for MessagesReducer " + action.type);
