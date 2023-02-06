@@ -73,29 +73,37 @@ function MessageHistory() {
   );
 }
 
+async function sendGPTrequest(message, conversationId) {
+  const bodyJSON = JSON.stringify({
+    message,
+    conversationId,
+    // parentMessageId: "placeholder-parent-message-id",
+  });
+  console.log(`You sent: \n${bodyJSON}`);
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: bodyJSON,
+  };
+  // this sends the requests to our local Next.js server at /pages/api/chatgpt
+  const endpoint = "/api/chatgpt";
+  const response = await fetch(endpoint, options);
+  const result = await response.json();
+  const data = result.data;
+  console.log(`You received: \n${data}`);
+}
+
 // https://nextjs.org/docs/guides/building-forms
 function TypeBox() {
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const bodyJSON = JSON.stringify({
-      message: event.target.message.value,
-      conversationId: "placeholder-conversation-id",
-      // parentMessageId: "placeholder-parent-message-id",
-    });
-    console.log(`You sent: \n${bodyJSON}`);
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: bodyJSON,
-    };
-    // this sends the requests to our local Next.js server at /pages/api/chatgpt
-    const endpoint = "/api/chatgpt";
-    const response = await fetch(endpoint, options);
-    const result = await response.json();
-    const data = result.data;
-    console.log(`You received: \n${data}`);
+    const message = event.target.message.value;
+    const gptReply = await sendGPTrequest(
+      message,
+      "placeholder-conversation-id"
+    );
   };
 
   return (
