@@ -64,18 +64,41 @@ function MessageHistory() {
 
 // https://nextjs.org/docs/guides/building-forms
 function TypeBox() {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const body = {
+      message: event.target.message.value,
+      conversationId: "placeholder-conversation-id",
+      // parentMessageId: "placeholder-parent-message-id",
+    };
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    };
+    // this sends the requests to our local Next.js server at /pages/api/chatgpt
+    const endpoint = "/api/chatgpt";
+    const response = await fetch(endpoint, options);
+    const result = await response.json();
+    console.log(result.data);
+  };
+
   return (
     <div className="bg-gray-300 p-4">
-      <input
-        className="flex items-center h-10 w-full rounded px-3 text-sm"
-        type="text"
-        id="message"
-        name="message"
-        required
-        minLength="5"
-        maxLength="200"
-        placeholder="Type your message…"
-      />
+      <form onSubmit={handleSubmit}>
+        <input
+          className="flex items-center h-10 w-full rounded px-3 text-sm"
+          type="text"
+          id="message"
+          name="message"
+          required
+          minLength="5"
+          maxLength="200"
+          placeholder="Type your message…"
+        />
+      </form>
     </div>
   );
 }
