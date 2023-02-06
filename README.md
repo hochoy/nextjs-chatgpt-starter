@@ -6,3 +6,5 @@ Guides:
 https://beta.nextjs.org/docs
 https://beta.nextjs.org/docs/styling/tailwind-css
 https://freefrontend.com/tailwind-chats/
+https://nextjs.org/docs/guides/building-forms
+https://beta.reactjs.org/learn/scaling-up-with-reducer-and-context

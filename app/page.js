@@ -1,4 +1,10 @@
 "use client";
+import {
+  MessagesProvider,
+  useMessages,
+  useMessagesDispatch,
+} from "../context/messagesContext.js";
+
 function ChatRoom() {
   return (
     <div className="flex flex-col flex-grow w-full max-w-xl bg-white shadow-xl rounded-lg overflow-hidden">
@@ -42,22 +48,27 @@ function InboundMessage({ text, mins_ago }) {
 }
 
 function MessageHistory() {
+  const messageHistory = useMessages();
+  const mins_ago = 2;
   return (
     <div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
-      <OutboundMessage
-        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-        mins_ago="2"
-      />
-      <InboundMessage
-        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod."
-        mins_ago="2"
-      />
-      <InboundMessage
-        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod."
-        mins_ago="2"
-      />
+      {messageHistory.map((message) => {
+        return message.messageType == "inbound" ? (
+          <InboundMessage
+            id={message.id}
+            key={message.id}
+            text={message.text}
+            mins_ago={mins_ago}
+          />
+        ) : (
+          <OutboundMessage
+            id={message.id}
+            key={message.id}
+            text={message.text}
+            mins_ago={mins_ago}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -123,8 +134,10 @@ function Title({ text }) {
 
 export default function Page() {
   return (
-    <CenteredBackground>
-      <ChatRoom />
-    </CenteredBackground>
+    <MessagesProvider>
+      <CenteredBackground>
+        <ChatRoom />
+      </CenteredBackground>
+    </MessagesProvider>
   );
 }
