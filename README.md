@@ -2,15 +2,19 @@
 
 Nextjs frontend starter kit for connecting to API at https://github.com/hochoy/node-chatgpt-starter
 
-Getting started:
-```bash
-# Follow the setup instructions on https://github.com/hochoy/node-chatgpt-starter
+![Demo screenshot](docs/demo_screenshot.png)
 
-# Then, on a separate terminal
-git clone https://github.com/hochoy/nextjs-chatgpt-starter
-cd nextjs-chatgpt-starter
+To get started:
+
+```bash
+# first, spin up a compatible API server at localhost:4000
+# you can follow the instructions at https://github.com/hochoy/node-chatgpt-starter
+# or edit `./pages/api/chatgpt.js` to make a different http request or communicate with a different service
+
+git clone git@github.com:hochoy/nextjs-chatgpt-starter.git
 npm install
 npm run dev
+
 ```
 
 Guides:
