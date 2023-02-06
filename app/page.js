@@ -61,6 +61,7 @@ function InboundMessage({ text, mins_ago }) {
 
 function MessageHistory() {
   const messageHistory = useMessages();
+  // TODO: capture timestamps
   const mins_ago = 2;
   return (
     <div className="flex flex-col flex-grow h-0 p-4 overflow-auto">
@@ -89,13 +90,14 @@ function MessageHistory() {
 function MessageInput() {
   const messageDispatch = useMessagesDispatch();
   const [typedMessage, setTypedMessage] = useState("");
+  const [parentMessageId, setParentMessageId] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const messageText = event.target.message.value;
     const messageId = uuidv4();
 
-    // update message context to update the ChatRoom
+    // dispatch a new outbound message to the MessageContext
     messageDispatch({
       type: "add",
       messageId: messageId,
@@ -109,9 +111,11 @@ function MessageInput() {
     // send a request to ChatGPT API
     const gptReply = await sendGPTrequest(
       messageText,
-      "placeholder-conversation-id"
+      "placeholder-conversation-id",
+      parentMessageId
     );
 
+    // dispatch a new inbound message to the MessageContext
     if (gptReply.response) {
       messageDispatch({
         type: "add",
@@ -119,6 +123,8 @@ function MessageInput() {
         messageText: gptReply.response,
         messageType: "inbound",
       });
+      // keep track of the latest message ID. This allows ChatGPT to remember the chat history
+      setParentMessageId(gptReply.messageId || null);
     }
   };
 
@@ -158,14 +164,12 @@ function Title({ text }) {
   );
 }
 
-async function sendGPTrequest(message, conversationId) {
+async function sendGPTrequest(message, conversationId, parentMessageId) {
   const bodyJSON = JSON.stringify({
     message,
     conversationId,
-    // parentMessageId: "placeholder-parent-message-id",
+    parentMessageId,
   });
-
-  console.log(`You sent: \n${bodyJSON}`);
 
   const options = {
     method: "POST",
@@ -181,6 +185,7 @@ async function sendGPTrequest(message, conversationId) {
   const response = await fetch(endpoint, options);
   const result = await response.json();
 
+  console.log(`Response from ChatGPT API: ${result}`);
   return {
     response: result.response,
     conversationId: result.conversationId,
