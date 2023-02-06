@@ -5,6 +5,7 @@ import {
   useMessages,
   useMessagesDispatch,
 } from "../context/messagesContext.js";
+import { useState } from "react";
 
 function ChatRoom() {
   return (
@@ -99,6 +100,7 @@ async function sendGPTrequest(message, conversationId) {
 // https://nextjs.org/docs/guides/building-forms
 function TypeBox() {
   const messageDispatch = useMessagesDispatch();
+  const [typedMessage, setTypedMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -112,6 +114,9 @@ function TypeBox() {
       messageText: messageText,
       messageType: "outbound",
     });
+
+    // reset input box
+    setTypedMessage("");
 
     // send a request to ChatGPT API
     const gptReply = await sendGPTrequest(
@@ -132,6 +137,8 @@ function TypeBox() {
           minLength="5"
           maxLength="200"
           placeholder="Type your message…"
+          value={typedMessage}
+          onChange={(event) => setTypedMessage(event.target.value)}
         />
       </form>
     </div>
