@@ -66,23 +66,25 @@ function MessageHistory() {
 function TypeBox() {
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const body = {
+    const bodyJSON = JSON.stringify({
       message: event.target.message.value,
       conversationId: "placeholder-conversation-id",
       // parentMessageId: "placeholder-parent-message-id",
-    };
+    });
+    console.log(`You sent: \n${bodyJSON}`);
     const options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(body),
+      body: bodyJSON,
     };
     // this sends the requests to our local Next.js server at /pages/api/chatgpt
     const endpoint = "/api/chatgpt";
     const response = await fetch(endpoint, options);
     const result = await response.json();
-    console.log(result.data);
+    const data = result.data;
+    console.log(`You received: \n${data}`);
   };
 
   return (
